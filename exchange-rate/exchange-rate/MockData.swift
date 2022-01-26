@@ -7,17 +7,17 @@
 
 import Foundation
 
-private func parseMockJson() -> ExchangeService.Response {
+func parseMockJson() -> ExchangeService.Response {
     try! JSONDecoder().decode(ExchangeService.Response.self, from: mockJsonData)
 }
 
 class MockExchangeService: ExchangeServiceProtocol {
-    func getPairs() async -> [CurrencyPair] {
-        parseMockJson().pairs.map { $0.toCurrencyPair() }
+    func getPairs() async -> ([CurrencyPair], CurrencyMatrix) {
+        (parseMockJson().pairs.map { $0.toCurrencyPair() }, CurrencyMatrix(currencies: []))
     }
 }
 
-private let mockJsonData = """
+let mockJsonData = """
 {
   "rates": [
     {

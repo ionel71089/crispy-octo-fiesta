@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-private var mockPairs = Array(repeating: CurrencyPair(from: "TEST", to: "TEST", rate: nil), count: 3)
+private var mockPairs = [1, 2, 3].map { CurrencyPair(from: "TEST\($0)", to: "TEST", rate: nil) }
 
 struct ContentView: View {
     var service: ExchangeServiceProtocol
@@ -39,13 +39,13 @@ struct ContentView: View {
             }
         }
         .task {
-            pairs = await service.getPairs()
+            (pairs, _) = await service.getPairs()
             isLoading = false
         }
         .refreshable {
             isLoading = true
             pairs = mockPairs
-            pairs = await service.getPairs()
+            (pairs, _) = await service.getPairs()
             isLoading = false
         }
     }
