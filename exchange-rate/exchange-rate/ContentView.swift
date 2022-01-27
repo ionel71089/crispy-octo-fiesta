@@ -8,11 +8,13 @@
 import SwiftUI
 
 private var mockPairs = [1, 2, 3].map { CurrencyPair(from: "TEST\($0)", to: "TEST", rate: nil) }
+private var mockCurrencyMatrix = CurrencyMatrix(currencies: [1, 2, 3].map { "TEST\($0)" })
 
 struct ContentView: View {
     var service: ExchangeServiceProtocol
     
     @State private var pairs: [CurrencyPair] = mockPairs
+    @State private var currencyMatrix: CurrencyMatrix = mockCurrencyMatrix
     @State private var isLoading: Bool = true
     
     var body: some View {
@@ -29,7 +31,7 @@ struct ContentView: View {
             }
             
             NavigationView {
-                CalculatorView()
+                CalculatorView(currencyMatrix: currencyMatrix)
                     .navigationTitle("Calculator")
             }
             .tag(2)
@@ -39,60 +41,16 @@ struct ContentView: View {
             }
         }
         .task {
-            (pairs, _) = await service.getPairs()
+            (pairs, currencyMatrix) = await service.getPairs()
             isLoading = false
         }
         .refreshable {
             isLoading = true
             pairs = mockPairs
-            (pairs, _) = await service.getPairs()
+            currencyMatrix = mockCurrencyMatrix
+            (pairs, currencyMatrix) = await service.getPairs()
             isLoading = false
         }
-    }
-}
-
-struct ExchangeRateView: View {
-    var pairs: [CurrencyPair]
-    
-    var body: some View {
-        List {
-            ForEach(pairs) { pair in
-                HStack(spacing: 30) {
-                    Spacer()
-                    CurrencyView(currency: pair.from)
-                    Text(pair.rateString)
-                    CurrencyView(currency: pair.to)
-                    Spacer()
-                }
-            }
-        }
-    }
-}
-
-struct CurrencyView: View {
-    var currency: String
-    
-    var body: some View {
-        VStack {
-            if let flagUrl = getCountryFlagUrl(currency: currency) {
-                AsyncImage(url: flagUrl)
-                    .frame(width: 40, height: 40)
-            } else {
-                Image(systemName: "flag.circle")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 40, height: 40)
-            }
-            
-            Text(currency)
-                .font(.headline)
-        }
-    }
-}
-
-struct CalculatorView: View {
-    var body: some View {
-        Text("CalculatorView")
     }
 }
 

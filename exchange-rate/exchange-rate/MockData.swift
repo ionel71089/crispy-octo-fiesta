@@ -11,9 +11,13 @@ func parseMockJson() -> ExchangeService.Response {
     try! JSONDecoder().decode(ExchangeService.Response.self, from: mockJsonData)
 }
 
+func parseMockData() -> ([CurrencyPair], CurrencyMatrix) {
+    (parseMockJson().pairs.map { $0.toCurrencyPair() }, CurrencyMatrix(currencies: []))
+}
+
 class MockExchangeService: ExchangeServiceProtocol {
     func getPairs() async -> ([CurrencyPair], CurrencyMatrix) {
-        (parseMockJson().pairs.map { $0.toCurrencyPair() }, CurrencyMatrix(currencies: []))
+        parseMockData()
     }
 }
 
